@@ -1,4 +1,4 @@
-# gulp-tojst [![Build Status](https://travis-ci.org/tambourinecoder/gulp-tojst-concat.png?branch=master)](https://travis-ci.org/tambourinecoder/gulp-tojst)
+# gulp-tojst [![Build Status](https://travis-ci.org/zlobin/gulp-tojst.png?branch=master)](https://travis-ci.org/zlobin/gulp-tojst)
 > A [gulp](http://gulpjs.com/) plugin to compile
 [underscore](http://underscorejs.org/#template) / [lodash](http://lodash.com/docs#template)
  into a single file.
