@@ -18,6 +18,7 @@
     "test": "mocha"
   },
   "keywords": [
+    "gulp",
     "gulpplugin",
     "jst",
     "concat",
