@@ -1,6 +1,6 @@
 {
   "name": "gulp-tojst",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Compile underscore/lodash templates into a single file, using gulp.",
   "author": {
     "name": "Eugene Zlobin",
