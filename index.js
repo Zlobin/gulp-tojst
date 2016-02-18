@@ -102,9 +102,11 @@ module.exports = function tojst (fileName, settings) {
           compiled.push('  return '.concat(getNamespace(options.namespace), ';'));
         }
         compiled.push('});');
+      } else {
+      	compiled.unshift(getNamespace(options.namespace) + ' = ' + getNamespace(options.namespace) + ' || {};');
       }
 
-      compiled.unshift(getNamespace(options.namespace) + ' = ' + getNamespace(options.namespace) + ' || {};');
+
 
       this.queue(new gulpUtil.File({
         path: fileName,
