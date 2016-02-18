@@ -106,8 +106,6 @@ module.exports = function tojst (fileName, settings) {
       	compiled.unshift(getNamespace(options.namespace) + ' = ' + getNamespace(options.namespace) + ' || {};');
       }
 
-
-
       this.queue(new gulpUtil.File({
         path: fileName,
         contents: new Buffer(compiled.join(options.separator))
