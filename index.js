@@ -29,7 +29,7 @@ function getNamespace (namespace) {
 }
 
 var defaults = {
-  amd: false,
+  amd: true,
   prettify: false,
   namespace: 'JST',
   processName: function (fileName) {
@@ -88,27 +88,25 @@ module.exports = function tojst (fileName, settings) {
   function end () {
     var compiled = files.map(compile);
 
-    //if (!compiled.length) {
-    //  this.emit('error', pluginError('Destination not written because compiled files were empty.'));
-    //} else {
-      if (options.amd) {
-        if (options.prettify) {
-          compiled.forEach(function(line, index) {
-            compiled[index] = '  '.concat(line);
-          });
-        }
-        compiled.unshift('define(function(){');
-        if (!options.namespace) {
-          compiled.push('  return '.concat(getNamespace(options.namespace), ';'));
-        }
-        compiled.push('});');
+    if (options.amd) {
+
+      if (options.prettify) {
+        compiled.forEach(function(line, index) {
+          compiled[index] = '  '.concat(line);
+        });
       }
 
-      this.queue(new gulpUtil.File({
-        path: fileName,
-        contents: new Buffer(compiled.join(options.separator))
-      }));
-    //}
+      compiled.unshift('define(function(){\nthis["JST"] = this["JST"] || {};');
+          if (!options.namespace) {
+            compiled.push('  return '.concat(getNamespace(options.namespace), ';'));
+          }
+          compiled.push('  \nreturn this["JST"];});');
+        }
+
+    this.queue(new gulpUtil.File({
+      path: fileName,
+      contents: new Buffer(compiled.join(options.separator))
+    }));
 
     this.queue(null);
   }
