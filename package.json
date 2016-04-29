@@ -1,10 +1,10 @@
 {
-  "name": "gulp-tojst",
+  "name": "resmio-gulp-tojst",
   "version": "0.1.3",
-  "description": "Compile underscore/lodash templates into a single file, using gulp.",
+  "description": "Compile underscore/lodash templates into a single file, using gulp. Forked for use at resmio",
   "author": {
-    "name": "Eugene Zlobin",
-    "url": "http://zlobin.pro"
+    "name": "resmio",
+    "url": "http://resmio.de"
   },
   "license": "MIT",
   "main": "index.js",
@@ -24,9 +24,10 @@
     "concat",
     "underscore",
     "lodash",
-    "template"
+    "template",
+    "resmio"
   ],
-  "repository": "zlobin/gulp-tojst",
+  "repository": "resmio/gulp-tojst",
   "dependencies": {
     "through": "^2.3.7",
     "gulp-util": "^3.0.4",
