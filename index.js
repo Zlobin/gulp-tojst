@@ -1,117 +1,116 @@
 'use strict';
 
-var pluginName = 'gulp-tojst';
-var gulpUtil = require('gulp-util');
-var through = require('through');
-var assign = require('lodash.assign');
-var template = require('lodash.template');
+const pluginName = 'gulp-tojst';
+const Vinyl = require('vinyl');
+const PluginError = require('plugin-error');
+const through = require('through');
+const assign = require('lodash.assign');
+const template = require('lodash.template');
 
-function pluginError (message) {
-  return new gulpUtil.PluginError(pluginName, message)
+function pluginError(message) {
+	return new PluginError(pluginName, message);
 }
 
-function getNamespace (namespace) {
-  var output = [];
-  var currentPath = 'this';
+function getNamespace(namespace) {
+	let currentPath = 'this';
 
-  if (namespace !== 'this') {
-    namespace
-      .split('.')
-      .forEach(function(part, index) {
-        if (part !== 'this') {
-          currentPath += '[' + JSON.stringify(part) + ']';
-          output.push(currentPath + ' = ' + currentPath + ' || {};');
-        }
-      });
-  }
+	if (namespace !== 'this') {
+		namespace
+				.split('.')
+				.forEach(function (part, index) {
+					if (part !== 'this') {
+						currentPath += '[' + JSON.stringify(part) + ']';
+					}
+				});
+	}
 
-  return currentPath;
+	return currentPath;
 }
 
-var defaults = {
-  amd: false,
-  prettify: false,
-  namespace: 'JST',
-  processName: function (fileName) {
-    return fileName;
-  },
-  processContent: function (source) {
-    return source;
-  },
-  separator: '\n',
-  templateSettings: {}
+const defaults = {
+	amd: false,
+	prettify: false,
+	namespace: 'JST',
+	processName: function (fileName) {
+		return fileName;
+	},
+	processContent: function (source) {
+		return source;
+	},
+	separator: '\n',
+	templateSettings: {}
 };
 
-module.exports = function tojst (fileName, settings) {
-  if (!fileName) {
-    pluginError('Missing fileName.');
-  }
+module.exports = function tojst(fileName, settings) {
+	if (!fileName) {
+		pluginError('Missing fileName.');
+	}
 
-  var options = assign({}, defaults, settings || {});
-  var files = [];
-  var namespace = '';
+	const options = assign({}, defaults, settings || {});
+	const files = [];
+	let namespace = '';
 
-  function compile (file) {
-    var name = options.processName(file.path);
-    var contents = template(file.contents.toString(),
-      options.templateSettings).source;
+	function compile(file) {
+		const name = options.processName(file.path);
+		let contents = template(file.contents.toString(),
+				options.templateSettings).source;
 
-    if (options.prettify) {
-      contents = contents.replace(/\n/g, '');
-    }
+		if (options.prettify) {
+			contents = contents.replace(/\n/g, '');
+		}
 
-    if (options.amd && !options.namespace) {
-      return 'return '.concat(contents);
-    }
+		if (options.amd && !options.namespace) {
+			return 'return '.concat(contents);
+		}
 
-    if (options.namespace) {
-      namespace = getNamespace(options.namespace);
-    }
+		if (options.namespace) {
+			namespace = getNamespace(options.namespace);
+		}
 
-    return namespace.concat('[', JSON.stringify(name),
-      '] = ', contents, ';');
-  }
+		return namespace.concat('[', JSON.stringify(name),
+				'] = ', contents, ';');
+	}
 
-  function write (file) {
-    if (file.isNull()) {
-      return;
-    }
-    if (file.isStream()) {
-      return this.emit('error', pluginError('Streaming is not supporting.'));
-    }
+	function write(file) {
+		if (file.isNull()) {
+			return;
+		}
+		if (file.isStream()) {
+			return this.emit('error', pluginError('Streaming is not supporting.'));
+		}
 
-    if (file.isBuffer()) {
-      files.push(file);
-    }
-  }
+		if (file.isBuffer()) {
+			files.push(file);
+		}
+	}
 
-  function end () {
-    var compiled = files.map(compile);
+	function end() {
+		const compiled = files.map(compile);
 
-    //if (!compiled.length) {
-    //  this.emit('error', pluginError('Destination not written because compiled files were empty.'));
-    //} else {
-      if (options.amd) {
-        if (options.prettify) {
-          compiled.forEach(function(line, index) {
-            compiled[index] = '  '.concat(line);
-          });
-        }
-        compiled.unshift('define(function(){');
-        if (!options.namespace) {
-          compiled.push('  return '.concat(getNamespace(options.namespace), ';'));
-        }
-        compiled.push('});');
-      }
+		//if (!compiled.length) {
+		//  this.emit('error', pluginError('Destination not written because compiled files were empty.'));
+		//} else {
+		if (options.amd) {
+			if (options.prettify) {
+				compiled.forEach(function (line, index) {
+					compiled[index] = '  '.concat(line);
+				});
+			}
+			compiled.unshift('define(function(){');
+			if (!options.namespace) {
+				compiled.push('  return '.concat(getNamespace(options.namespace), ';'));
+			}
+			compiled.push('});');
+		}
 
-      this.queue(new gulpUtil.File({
-        path: fileName,
-        contents: new Buffer(compiled.join(options.separator))
-      }));
-    //}
+		this.queue(new Vinyl({
+			path: fileName,
+			contents: Buffer.from(compiled.join(options.separator))
+		}));
+		//}
 
-    this.queue(null);
-  }
+		this.queue(null);
+	}
 
-  return through(write, end);
+	return through(write, end);
 }
